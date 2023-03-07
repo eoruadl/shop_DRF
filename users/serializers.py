@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from .models import Profile
 from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import serializers
@@ -44,3 +45,8 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'password', 'email')
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('name', 'phone_number', 'date_of_birth', 'profile_image')

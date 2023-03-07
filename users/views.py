@@ -1,8 +1,10 @@
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
+
+from .models import Profile
 
 from django.contrib.auth import authenticate
 
@@ -67,3 +69,7 @@ class LogoutAPIView(APIView):
         })
         response.delete_cookie("access")
         return response
+    
+class ProfileAPIView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
