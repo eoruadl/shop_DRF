@@ -1,12 +1,13 @@
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer, AddressSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework import status, generics
+from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
-from .models import Profile
-
+from .models import Profile, Address
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 
 
 class RegisterAPIView(APIView):
@@ -73,3 +74,18 @@ class LogoutAPIView(APIView):
 class ProfileAPIView(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+
+class AddressAPIView(APIView):
+    def get(self, request, id):
+        profile = get_object_or_404(Profile, user=id)
+        serializer = AddressSerializer(profile.addresses.all(), many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, id):
+        profile = get_object_or_404(Profile, user=id)
+        serializer = AddressSerializer(data=request.data)
+        if serializer.is_valid():
+            address = serializer.save()
+            profile.addresses.add(address)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
